@@ -1,0 +1,39 @@
+services:
+  th-sensor-reader:
+    build: "."
+    privileged: true
+    network_mode: host
+    cap_add:
+    - SYS_ADMIN
+    - NET_ADMIN
+
+  influxdb:
+    image: influxdb:2.4-alpine
+    volumes:
+      - influxdb-storage:/var/lib/influxdb2:rw
+    environment: 
+       # Use these same configurations parameters in your telegraf configuration, mytelegraf.conf.
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=root
+      - DOCKER_INFLUXDB_INIT_PASSWORD=root123456789
+      - DOCKER_INFLUXDB_INIT_ORG=kotik
+      - DOCKER_INFLUXDB_INIT_BUCKET=default
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=token
+    ports:
+      - 8086:8086
+    
+    restart: unless-stopped
+  
+  grafana:
+    image: grafana/grafana-oss:9.2.1
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    links:
+      - influxdb:influxdb
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+
+volumes:
+  influxdb-storage:
+  grafana-storage:
