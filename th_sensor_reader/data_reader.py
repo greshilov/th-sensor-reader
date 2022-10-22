@@ -7,6 +7,8 @@ from bleak.backends.scanner import AdvertisementData
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
+from .config import BUCKET
+
 logger = logging.getLogger(__name__)
 
 
@@ -56,7 +58,7 @@ class DataReader:
         write_api = self.influx_client.write_api(write_options=SYNCHRONOUS)
 
         write_api.write(
-            bucket="default",
+            bucket=BUCKET,
             record=tdata,
             record_measurement_name="tdata",
             record_field_keys=["temperature", "humidity", "battery"],
