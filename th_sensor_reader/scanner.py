@@ -32,11 +32,11 @@ async def scan():
     while True:
         async with BleakScanner(
             detection_callback=reader.read_data,
-            #scanning_mode="passive",
-            #bluez=BlueZScannerArgs(
-            #    or_patterns=[
-            #        OrPattern(0, AdvertisementDataType.FLAGS, b"\x06"),
-            #    ]
-            #),
+            scanning_mode="passive",
+            bluez=BlueZScannerArgs(
+                or_patterns=[
+                    OrPattern(0, AdvertisementDataType.FLAGS, b"\x06"),
+                ]
+            ),
         ) as scanner:
             await asyncio.sleep(30)
