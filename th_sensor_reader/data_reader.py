@@ -41,7 +41,7 @@ class DataReader:
         self.influx_client = influx_client
 
     def read_data(self, device: BLEDevice, advertisement_data: AdvertisementData):
-        logger.info(f"{device.address} RSSI: {device.rssi}, {advertisement_data}")
+        logger.debug(f"{device.address} RSSI: {device.rssi}, {advertisement_data}")
 
         if (
             device.address == self.address
