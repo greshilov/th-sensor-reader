@@ -1,5 +1,6 @@
 import dataclasses
 import logging
+import time
 
 from bleak.backends.device import BLEDevice
 from bleak.backends.scanner import AdvertisementData
@@ -32,12 +33,14 @@ class TData:
 
 
 class DataReader:
+    REFRESH_INTERVAL = 3 * 60  # 3 min
+
     def __init__(
         self, address: str, target_service: str, influx_client: InfluxDBClient
     ):
         self.address = address
         self.target_service = target_service
-        self.last_data = None
+        self.last_data = [0, None]
         self.influx_client = influx_client
 
     def read_data(self, device: BLEDevice, advertisement_data: AdvertisementData):
@@ -46,11 +49,14 @@ class DataReader:
         if (
             device.address == self.address
             and (data := advertisement_data.service_data.get(self.target_service))
-            and data != self.last_data
+            and (
+                data != self.last_data[1]
+                or time.monotonic() - self.last_data[0] > self.REFRESH_INTERVAL
+            )
         ):
             tdata = TData.from_bytes(data)
             self.write_to_db(tdata)
-            self.last_data = data
+            self.last_data = [time.monotonic(), data]
 
     def write_to_db(self, tdata: TData):
         logger.info(f"writing data to a database: %r", tdata)
